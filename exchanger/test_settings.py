@@ -6,7 +6,9 @@ ORDER_SETTINGS = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "order.authentications.MockBasicAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": REST_FRAMEWORK["DEFAULT_PERMISSION_CLASSES"],
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated"
+    ),
     "CURRENCY_MODEL": "wallet.Currency",
     "WALLET_MODEL": "wallet.Wallet",
     "CURRENCY_SERVICE": "wallet.services.CurrencyService",
