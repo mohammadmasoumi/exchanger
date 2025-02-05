@@ -114,8 +114,10 @@ def aggregate_order(order_id: str):
 def submit_order(settled_id: str):
     with transaction.atomic():
         # Lock the main settled order
-        settled_order = SettledOrder.objects.select_for_update().prefetch_related("orders").get(
-            settled_id=settled_id
+        settled_order = (
+            SettledOrder.objects.select_for_update()
+            .prefetch_related("orders")
+            .get(settled_id=settled_id)
         )
 
         # Fetch orders only once and store in a list

@@ -2,7 +2,6 @@ from rest_framework import viewsets
 from rest_framework.viewsets import mixins
 from django.db import transaction
 
-from order.authentications import MockBasicAuthentication
 from order.tasks import aggregate_order, submit_order
 from order.viewsets import container
 from order.models import SettledOrder
@@ -14,7 +13,7 @@ from order.settings import order_settings
 class DepositOrderViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = OrderCreateSerializer
     permission_classes = order_settings.DEFAULT_PERMISSION_CLASSES
-    authentication_classes = (MockBasicAuthentication, )
+    authentication_classes = order_settings.DEFAULT_AUTHENTICATION_CLASSES
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

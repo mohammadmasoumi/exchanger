@@ -12,6 +12,9 @@ DEFAULTS: Dict[str, Any] = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
+    ),
     # Define the minimum amount required for aggregation per currency
     "AGGREGATION_THRESHOLD": Decimal("10.00"),
     "CURRENCY_MODEL": "",

@@ -47,7 +47,9 @@ class WalletService(WalletServiceAbstract):
             logger.error(f"Insufficient balance. curr: {currency} - amount: {amount}")
             return {"success": False, "error": _("Insufficient balance")}
         except Exception as e:  # noqa
-            logger.error(f"An error occurred. curr: {currency} - amount: {amount} - e: {e}")
+            logger.error(
+                f"An error occurred. curr: {currency} - amount: {amount} - e: {e}"
+            )
             return {"success": False, "error": _("An error occurred")}
 
         return {"success": True, "wallet": wallet}
@@ -69,7 +71,9 @@ class WalletService(WalletServiceAbstract):
             )
             return {"success": False, "error": _("Withdraw amount must be positive")}
         except Exception as e:  # noqa
-            logger.error(f"An error occurred. curr: {currency} - amount: {amount} - e: {e}")
+            logger.error(
+                f"An error occurred. curr: {currency} - amount: {amount} - e: {e}"
+            )
             return {"success": False, "error": _("An error occurred")}
 
         return {"success": True, "wallet": wallet}

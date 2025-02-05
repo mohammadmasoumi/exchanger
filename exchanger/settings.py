@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import sentry_sdk
 from pathlib import Path
-from celery.schedules import crontab
+from datetime import timedelta
 from kombu import Exchange, Queue
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -131,24 +131,19 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-# Application specific configurations
-AUTH_USER_MODEL = "account.User"
-
-ORDER_SETTINGS = {
-    "CURRENCY_MODEL": "wallet.Currency",
-    "WALLET_MODEL": "wallet.Wallet",
-    "CURRENCY_SERVICE": "wallet.services.CurrencyService",
-    "WALLET_SERVICE": "wallet.services.WalletService",
-}
 
 # Redis configuration (used both for distributed locking and as Celery broker/backend)
 REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
@@ -241,17 +236,46 @@ LOGGING = {
 # REST framework configuration
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+        "rest_framework.permissions.IsAuthenticated",
     ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/min',
+    },
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
 }
 
+# JWT Configurations
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": True,
+    "SIGNING_KEY": os.getenv("JWT_SIGNING_KEY", "complex-signing-key"),
+    "ALGORITHM": "HS512",
+}
+
+# Application specific configurations
+AUTH_USER_MODEL = "account.User"
+
+
+ORDER_SETTINGS = {
+    "DEFAULT_AUTHENTICATION_CLASSES": REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"],
+    "DEFAULT_PERMISSION_CLASSES": REST_FRAMEWORK["DEFAULT_PERMISSION_CLASSES"],
+    "CURRENCY_MODEL": "wallet.Currency",
+    "WALLET_MODEL": "wallet.Wallet",
+    "CURRENCY_SERVICE": "wallet.services.CurrencyService",
+    "WALLET_SERVICE": "wallet.services.WalletService",
+}
 
 # Sentry configuration
 SENTRY_URL = os.getenv("SENTRY_URL", None)
@@ -342,5 +366,3 @@ CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_BROKER_CONNECTION_RETRY = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-# todo: remove below on production
-CELERY_ALWAYS_EAGER = True

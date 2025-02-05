@@ -6,8 +6,10 @@ django-redis==5.4.0
 djangorestframework==3.14.0
 djangorestframework_simplejwt==5.4.0
 ipython==8.32.0
+gunicorn==23.0.0
 psycopg2-binary==2.9.10
 python-json-logger==3.2.1
 redis==5.0.1
 ruff==0.9.4
 sentry-sdk==2.20.0
+whitenoise==6.8.2

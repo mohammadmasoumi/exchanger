@@ -8,7 +8,9 @@ class UserManager(BaseUserManager):
             raise ValueError(_("The phone number must be set"))
 
         extra_fields.setdefault("is_active", True)
-        user = self.model(phone_number=phone_number, username=phone_number, **extra_fields)
+        user = self.model(
+            phone_number=phone_number, username=phone_number, **extra_fields
+        )
         user.set_password(password)
         user.save(using=self._db)
         return user

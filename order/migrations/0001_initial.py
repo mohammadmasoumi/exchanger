@@ -10,46 +10,173 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('wallet', '0001_initial'),
+        ("wallet", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('order_id', models.UUIDField(default=uuid.uuid4, editable=False)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('completed', 'Completed'), ('canceled', 'Canceled')], default='pending', max_length=10)),
-                ('settlement_status', models.CharField(choices=[('unaggregated', 'Unaggregated'), ('pending', 'Pending'), ('aggregated', 'Aggregated'), ('submitted', 'Submitted'), ('failed', 'Failed'), ('canceled', 'Canceled')], default='pending', max_length=20)),
-                ('amount', models.DecimalField(decimal_places=8, max_digits=18, validators=[django.core.validators.MinValueValidator(Decimal('1E-8'))])),
-                ('price', models.DecimalField(decimal_places=8, max_digits=18, validators=[django.core.validators.MinValueValidator(Decimal('1E-8'))])),
-                ('side', models.CharField(choices=[('buy', 'Buy'), ('sell', 'Sell')], default='sell', max_length=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True, db_index=True, primary_key=True, serialize=False)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('source_currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='source_orders', to='wallet.currency')),
-                ('target_currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='destination_orders', to='wallet.currency')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='orders', to=settings.AUTH_USER_MODEL)),
+                ("order_id", models.UUIDField(default=uuid.uuid4, editable=False)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("completed", "Completed"),
+                            ("canceled", "Canceled"),
+                        ],
+                        default="pending",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "settlement_status",
+                    models.CharField(
+                        choices=[
+                            ("unaggregated", "Unaggregated"),
+                            ("pending", "Pending"),
+                            ("aggregated", "Aggregated"),
+                            ("submitted", "Submitted"),
+                            ("failed", "Failed"),
+                            ("canceled", "Canceled"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=8,
+                        max_digits=18,
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("1E-8"))
+                        ],
+                    ),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=8,
+                        max_digits=18,
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("1E-8"))
+                        ],
+                    ),
+                ),
+                (
+                    "side",
+                    models.CharField(
+                        choices=[("buy", "Buy"), ("sell", "Sell")],
+                        default="sell",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        db_index=True,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "source_currency",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="source_orders",
+                        to="wallet.currency",
+                    ),
+                ),
+                (
+                    "target_currency",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="destination_orders",
+                        to="wallet.currency",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="orders",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='SettledOrder',
+            name="SettledOrder",
             fields=[
-                ('settled_id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('amount', models.DecimalField(decimal_places=8, max_digits=20, validators=[django.core.validators.MinValueValidator(Decimal('1E-8'))])),
-                ('price', models.DecimalField(decimal_places=8, max_digits=18, validators=[django.core.validators.MinValueValidator(Decimal('1E-8'))])),
-                ('external_wallet', models.CharField(blank=True, max_length=1024, null=True)),
-                ('status', models.CharField(default='pending', verbose_name=order.models.order_choices.SettledOrderStatus)),
-                ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='settled_orders', to='wallet.currency')),
-                ('orders', models.ManyToManyField(related_name='settled_orders', to='order.order')),
+                (
+                    "settled_id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=8,
+                        max_digits=20,
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("1E-8"))
+                        ],
+                    ),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=8,
+                        max_digits=18,
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("1E-8"))
+                        ],
+                    ),
+                ),
+                (
+                    "external_wallet",
+                    models.CharField(blank=True, max_length=1024, null=True),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        default="pending",
+                        verbose_name=order.models.order_choices.SettledOrderStatus,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, db_index=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "currency",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="settled_orders",
+                        to="wallet.currency",
+                    ),
+                ),
+                (
+                    "orders",
+                    models.ManyToManyField(
+                        related_name="settled_orders", to="order.order"
+                    ),
+                ),
             ],
         ),
     ]
