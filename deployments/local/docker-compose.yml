@@ -1,0 +1,106 @@
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: postgres
+    networks:
+      - app-tier
+    environment:
+      POSTGRES_USER: exchanger_user
+      POSTGRES_PASSWORD: exchanger_password
+      POSTGRES_DB: exchanger_db
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: --auth=md5
+    volumes:
+      - timescaledata:/var/lib/postgresql/data/
+  pgbouncer:
+    image: docker.arvancloud.ir/edoburu/pgbouncer:latest
+    container_name: pgbouncer
+    networks:
+      - app-tier
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: exchanger_user
+      DB_PASSWORD: exchanger_password
+      ADMIN_USERS: postgres,admin
+    ports:
+      - "5432:5432"
+  redis:
+    image: bitnami/redis:latest
+    container_name: redis
+    networks:
+      - app-tier
+    environment:
+      REDIS_PASSWORD: changeme
+    restart: always
+    ports:
+      - "6379:6379"
+  flower:
+    image: mher/flower
+    container_name: flower
+    restart: always
+    networks:
+      - app-tier
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    command: ["celery", "flower", "--broker=redis://:changeme@redis:6379/0", "--port=5555", "--basic-auth=admin:sCoNValEcITaKONEXtUrfLOypoXiWasTbrANZa"]
+    ports:
+      - "5555:5555"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    hostname: zookeeper
+    networks:
+      - app-tier
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zoodata:/var/lib/zookeeper/data
+      - zoolog:/var/lib/zookeeper/log
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - app-tier
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - brokerdata:/var/lib/kafka/data
+  kafka_ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka_ui
+    hostname: kafka_ui
+    depends_on:
+      - zookeeper
+    ports:
+      - "8080:8080"
+    networks:
+      - app-tier
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  timescaledata:
+  zoodata:
+  zoolog:
+  brokerdata:

@@ -1,0 +1,33 @@
+# Python
+*.pyc
+# Media files
+media/*
+# Local development settings
+*/local.py
+exchanger/*local*.py
+development/backups/*
+# Virtual envs
+venv
+.venv
+# IDEA configurations
+.run*
+.idea/
+# Local development directories
+.env
+*/.env
+.scripts
+# Static files
+static-root/
+# Database
+*.sqlite3
+db.sqlite3
+# Logs
+logs
+errors.log
+# Celeery
+celerybeat-schedule
+# Node modules
+node_modules
+*.min.js
+*.min.css
+**/originals/*.css
