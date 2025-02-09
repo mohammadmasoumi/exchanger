@@ -4,16 +4,17 @@ from django.urls import reverse
 from django.test.utils import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
-from order.models import SettledOrder, Order
-from order.serializers import OrderCreateSerializer
-from order.models.order_choices import OrderSide, SettledOrderStatus
-from order.settings import order_settings
+# from order.models import SettledOrder, Order
+# from order.serializers import OrderCreateSerializer
+# from order.models.order_choices import OrderSide, SettledOrderStatus
+# from order.settings import order_settings
 
 
 @override_settings(AUTH_USER_MODEL="account.User")
 class DepositOrderViewSetTest(APITestCase):
     def setUp(self):
-        pass
+        from django.conf import settings
+        print(settings.DJANGO_SETTINGS_MODULE)
 
     @patch("order.tasks.aggregate_order.apply_async")
     @patch("order.tasks.submit_order.apply_async")
